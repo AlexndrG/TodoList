@@ -5,8 +5,8 @@ import {
     addTaskAC,
     changeTaskStatusAC,
     changeTaskTitleAC,
-    RemoveTodolistAC,
 } from './tasks-reducer';
+import { RemoveTodolistAC } from './todolists-reducer';
 
 
 test('correct task should be deleted from correct array', () => {
