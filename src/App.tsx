@@ -84,7 +84,6 @@ function App() {
         }
     }
 
-
     function changeFilter(value: FilterValuesType, todolistId: string) {
         let todolist = todolists.find(tl => tl.id === todolistId);
         if (todolist) {
