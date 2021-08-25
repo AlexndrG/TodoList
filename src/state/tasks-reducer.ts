@@ -2,7 +2,8 @@ import {FilterValuesType, TasksStateType, TodolistType} from '../App';
 import {v1} from 'uuid';
 import {AddTodolistActionType, RemoveTodolistActionType} from './todolists-reducer';
 
-export const initialState:TasksStateType = {}
+
+const initialState:TasksStateType = {}
 
 export type RemoveTaskActionType = {
     type: 'REMOVE-TASK'
