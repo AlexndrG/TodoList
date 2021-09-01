@@ -40,13 +40,21 @@ export const todolistsReducer = (state: Array<TodolistType> = initialState, acti
             }, ...state]
         }
         case 'CHANGE-TODOLIST-TITLE': {
-            return state.map(td => td.id === action.id ? {...td, title: action.title} : td)
+            const todolist = state.find(tl => tl.id === action.id);
+            if (todolist) {
+                // если нашёлся - изменим ему заголовок
+                todolist.title = action.title;
+            }
+            return [...state]
         }
-
         case 'CHANGE-TODOLIST-FILTER': {
-            return state.map(td => td.id === action.id ? {...td, filter: action.filter} : td)
+            const todolist = state.find(tl => tl.id === action.id);
+            if (todolist) {
+                // если нашёлся - изменим ему заголовок
+                todolist.filter = action.filter;
+            }
+            return [...state]
         }
-
         default:
             return state;
     }
