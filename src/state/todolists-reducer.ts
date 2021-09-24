@@ -1,4 +1,3 @@
-import {v1} from 'uuid';
 import {todolistsAPI, TodolistType} from '../api/todolists-api'
 import {Dispatch} from 'redux';
 import {AppRootStateType} from './store';
@@ -9,8 +8,7 @@ export type RemoveTodolistActionType = {
 }
 export type AddTodolistActionType = {
     type: 'ADD-TODOLIST',
-    title: string
-    todolistId: string
+    todo: TodolistType
 }
 export type ChangeTodolistTitleActionType = {
     type: 'CHANGE-TODOLIST-TITLE',
@@ -51,11 +49,8 @@ export const todolistsReducer = (state: Array<TodolistDomainType> = initialState
         }
         case 'ADD-TODOLIST': {
             return [{
-                id: action.todolistId,
-                title: action.title,
-                filter: 'all',
-                addedDate: '',
-                order: 0
+                ...action.todo,
+                filter: 'all'
             }, ...state]
         }
         case 'CHANGE-TODOLIST-TITLE': {
@@ -82,8 +77,8 @@ export const todolistsReducer = (state: Array<TodolistDomainType> = initialState
 export const removeTodolistAC = (todolistId: string): RemoveTodolistActionType => {
     return {type: 'REMOVE-TODOLIST', id: todolistId}
 }
-export const addTodolistAC = (title: string): AddTodolistActionType => {
-    return {type: 'ADD-TODOLIST', title: title, todolistId: v1()}
+export const addTodolistAC = (todo: TodolistType): AddTodolistActionType => {
+    return {type: 'ADD-TODOLIST', todo}
 }
 export const changeTodolistTitleAC = (id: string, title: string): ChangeTodolistTitleActionType => {
     return {type: 'CHANGE-TODOLIST-TITLE', id: id, title: title}
@@ -114,14 +109,44 @@ export type SetTodolistsActionType = ReturnType<typeof setTodolistsAC>
 
 // THUNK
 
-export const setTodolistsThunk = (dispatch: Dispatch, getState: ()=> AppRootStateType) => {
+export const setTodolistsThunk = (dispatch: Dispatch, getState: () => AppRootStateType) => {
 
     // 1. side effects (ajax request, localstorage, ...)
     // 2. dispatch actions (thunk)
 
     todolistsAPI.getTodolists()
         .then((res) => {
-        let todos = res.data
-        dispatch(setTodolistsAC(todos))
-    })
+            let todos = res.data
+            dispatch(setTodolistsAC(todos))
+        })
+}
+
+export const removeTodolistTC = (todoId: string) => (dispatch: Dispatch) => {
+    todolistsAPI.deleteTodolist(todoId)
+        .then((res) => {
+            if (res.data.resultCode === 0) {
+                dispatch(removeTodolistAC(todoId))
+            }
+        })
+}
+
+export const addTodolistTC = (title: string) => (dispatch: Dispatch) => {
+    todolistsAPI.createTodolist(title)
+        .then((res) => {
+            if (res.data.resultCode === 0) {
+                const todo = res.data.data.item
+                dispatch(addTodolistAC(todo))
+            }
+        })
+}
+
+export const changeTodolistTitleTC = (todoId: string, title: string) => (dispatch: Dispatch) => {
+    debugger
+
+    todolistsAPI.updateTodolist(todoId, title)
+        .then((res) => {
+            if (res.data.resultCode === 0) {
+                dispatch(changeTodolistTitleAC(todoId, title))
+            }
+        })
 }

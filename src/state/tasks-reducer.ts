@@ -1,5 +1,4 @@
 import {TasksStateType} from '../App';
-import {v1} from 'uuid';
 import {
     AddTodolistActionType,
     RemoveTodolistActionType,
@@ -118,7 +117,7 @@ export const tasksReducer = (state: TasksStateType = initialState, action: Actio
         case 'ADD-TODOLIST': {
             return {
                 ...state,
-                [action.todolistId]: []
+                [action.todo.id]: []
             }
         }
         case 'REMOVE-TODOLIST': {
@@ -202,7 +201,7 @@ export const updateTaskStatusTC = (todoId: string, taskId: string, status: TaskS
             //     status
             // }
 
-            let model:UpdateTaskModelType = {
+            let model: UpdateTaskModelType = {
                 deadline: clickedTask.deadline,
                 description: clickedTask.description,
                 priority: clickedTask.priority,
@@ -211,6 +210,15 @@ export const updateTaskStatusTC = (todoId: string, taskId: string, status: TaskS
                 status
             }
 
+            // let {
+            //     id,
+            //     todoListId,
+            //     addedDate,
+            //     order,
+            //     ...model
+            // } = clickedTask
+            // model.status = status
+
             todolistsAPI.updateTask(todoId, taskId, model)
                 .then((res) => {
                     const action = changeTaskStatusAC(taskId, status, todoId);
@@ -218,4 +226,27 @@ export const updateTaskStatusTC = (todoId: string, taskId: string, status: TaskS
                 })
         }
 
+    }
+
+export const changeTaskTitleTC = (todoId: string, taskId: string, title: string) =>
+    (dispatch: Dispatch, getState: () => AppRootStateType) => {
+        const task = getState().tasks[todoId].find(t => t.id === taskId)
+
+        if (task) {
+            const {
+                id,
+                todoListId,
+                addedDate,
+                order,
+                ...model
+            } = task
+            model.title = title
+
+            todolistsAPI.updateTask(todoId, taskId, model)
+                .then((res) => {
+                    if (res.data.resultCode === 0) {
+                        dispatch(changeTaskTitleAC(taskId, title, todoId))
+                    }
+                })
+        }
     }
