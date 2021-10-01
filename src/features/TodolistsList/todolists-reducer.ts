@@ -62,6 +62,9 @@ export const fetchTodolistsTC = () => {
                 dispatch(setTodolistsAC(res.data))
                 dispatch(setAppStatusAC('succeeded'))
             })
+            .catch((res: AxiosError) => {
+                handleServerNetworkError(dispatch, res.message)
+            })
     }
 }
 export const removeTodolistTC = (todolistId: string) => {
@@ -70,8 +73,15 @@ export const removeTodolistTC = (todolistId: string) => {
         dispatch(changeTodolistEntityStatusAC(todolistId, 'loading'))
         todolistsAPI.deleteTodolist(todolistId)
             .then((res) => {
-                dispatch(removeTodolistAC(todolistId))
-                dispatch(setAppStatusAC('succeeded'))
+                if (res.data.resultCode === 0) {
+                    dispatch(removeTodolistAC(todolistId))
+                    dispatch(setAppStatusAC('succeeded'))
+                } else {
+                    handleServerAppError(res.data, dispatch)
+                }
+            })
+            .catch((res: AxiosError) => {
+                handleServerNetworkError(dispatch, res.message)
             })
     }
 }
@@ -84,15 +94,10 @@ export const addTodolistTC = (title: string) => {
                     dispatch(addTodolistAC(res.data.data.item))
                     dispatch(setAppStatusAC('succeeded'))
                 } else {
-                    // const message = res.data.messages.length ? res.data.messages[0] : 'Unknown Error! (code 12345)'
-                    // dispatch(setAppErrorAC(message))
-                    // dispatch(setAppStatusAC('failed'))
                     handleServerAppError<{ item: TodolistType }>(res.data, dispatch)
                 }
             })
             .catch((res: AxiosError) => {
-                // dispatch(setAppErrorAC(res.message))
-                // dispatch(setAppStatusAC('failed'))
                 handleServerNetworkError(dispatch, res.message)
             })
     }
@@ -102,8 +107,15 @@ export const changeTodolistTitleTC = (id: string, title: string) => {
         dispatch(setAppStatusAC('loading'))
         todolistsAPI.updateTodolist(id, title)
             .then((res) => {
-                dispatch(changeTodolistTitleAC(id, title))
-                dispatch(setAppStatusAC('succeeded'))
+                if (res.data.resultCode === 0) {
+                    dispatch(changeTodolistTitleAC(id, title))
+                    dispatch(setAppStatusAC('succeeded'))
+                } else {
+                    handleServerAppError(res.data, dispatch)
+                }
+            })
+            .catch((res: AxiosError) => {
+                handleServerNetworkError(dispatch, res.message)
             })
     }
 }
