@@ -67,7 +67,7 @@ export const fetchTodolistsTC = () => {
 export const removeTodolistTC = (todolistId: string) => {
     return (dispatch: Dispatch<ActionsType>) => {
         dispatch(setAppStatusAC('loading'))
-        dispatch(changeTodolistEntityStatusAC(todolistId,'loading'))
+        dispatch(changeTodolistEntityStatusAC(todolistId, 'loading'))
         todolistsAPI.deleteTodolist(todolistId)
             .then((res) => {
                 dispatch(removeTodolistAC(todolistId))
@@ -80,15 +80,15 @@ export const addTodolistTC = (title: string) => {
         dispatch(setAppStatusAC('loading'))
         todolistsAPI.createTodolist(title)
             .then((res) => {
-                // if (res.data.resultCode === 0) {
-                //     dispatch(addTodolistAC(res.data.data.item))
-                //     dispatch(setAppStatusAC('succeeded'))
-                // } else {
-                //     const message = res.data.messages.length ? res.data.messages[0] : 'Unknown Error! (code 12345)'
-                //     dispatch(setAppErrorAC(message))
-                //     dispatch(setAppStatusAC('failed'))
-                // }
-                handleServerAppError<{item: TodolistType}>(res.data, dispatch)
+                if (res.data.resultCode === 0) {
+                    dispatch(addTodolistAC(res.data.data.item))
+                    dispatch(setAppStatusAC('succeeded'))
+                } else {
+                    // const message = res.data.messages.length ? res.data.messages[0] : 'Unknown Error! (code 12345)'
+                    // dispatch(setAppErrorAC(message))
+                    // dispatch(setAppStatusAC('failed'))
+                    handleServerAppError<{ item: TodolistType }>(res.data, dispatch)
+                }
             })
             .catch((res: AxiosError) => {
                 // dispatch(setAppErrorAC(res.message))

@@ -74,26 +74,26 @@ export const addTaskTC = (title: string, todolistId: string) => (dispatch: Dispa
     dispatch(setAppStatusAC('loading'))
     todolistsAPI.createTask(todolistId, title)
         .then(res => {
-            // if (res.data.resultCode === 0) {
-            //     const task = res.data.data.item
-            //     const action = addTaskAC(task)
-            //     dispatch(action)
-            //     dispatch(setAppStatusAC('succeeded'))
-            // } else {
-            //     const message = res.data.messages.length ? res.data.messages[0] : 'Unknown Error! (code 12345)'
-            //     dispatch(setAppErrorAC(message))
-            //     dispatch(setAppStatusAC('failed'))
-            // }
-            handleServerAppError<{item: TaskType}>(res.data, dispatch)
+            if (res.data.resultCode === 0) {
+                const task = res.data.data.item
+                const action = addTaskAC(task)
+                dispatch(action)
+                dispatch(setAppStatusAC('succeeded'))
+            } else {
+                // const message = res.data.messages.length ? res.data.messages[0] : 'Unknown Error! (code 12345)'
+                // dispatch(setAppErrorAC(message))
+                // dispatch(setAppStatusAC('failed'))
+                handleServerAppError<{ item: TaskType }>(res.data, dispatch)
+            }
         })
         .catch((res: AxiosError) => {
             // dispatch(setAppErrorAC(res.message))
             // dispatch(setAppStatusAC('failed'))
             handleServerNetworkError(dispatch, res.message)
         })
-        // .finally(() => {
-        //     dispatch(setAppStatusAC('succeeded'))
-        // })
+    // .finally(() => {
+    //     dispatch(setAppStatusAC('succeeded'))
+    // })
 }
 export const updateTaskTC = (taskId: string, domainModel: UpdateDomainTaskModelType, todolistId: string) =>
     (dispatch: Dispatch<ActionsType>, getState: () => AppRootStateType) => {
