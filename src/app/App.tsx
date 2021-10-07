@@ -1,31 +1,41 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import './App.css'
-import { TodolistsList } from '../features/TodolistsList/TodolistsList'
+import {AppBar, Button, Container, IconButton, LinearProgress, Toolbar, Typography} from '@material-ui/core'
+import {Menu} from '@material-ui/icons'
+import {TodolistsList} from '../features/TodolistsList/TodolistsList'
+import {ErrorSnackbar} from '../components/ErrorSnackbar/ErrorSnackbar'
+import {useDispatch, useSelector} from 'react-redux'
+import {AppRootStateType} from './store'
+import {initializeAppTC, RequestStatusType} from './app-reducer'
+import {Login} from '../features/Login/Login';
+import {Route, Switch, Redirect} from 'react-router-dom'
+import {logoutTC, setIsLoggedInAC} from '../features/Login/auth-reducer';
 
-// You can learn about the difference by reading this guide on minimizing bundle size.
-// https://mui.com/guides/minimizing-bundle-size/
-// import { AppBar, Button, Container, IconButton, Toolbar, Typography } from '@mui/material';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import { Menu } from '@mui/icons-material';
-import LinearProgress from '@mui/material/LinearProgress';
-import {useSelector} from 'react-redux';
-import {AppRootStateType} from './store';
-import {RequestStatusType} from './app-reducer';
-import {ErrorSnackbar} from '../components/ErrorSnackBar/ErrorSnackBar';
+type PropsType = {
+    demo?: boolean
+}
 
+function App({demo = false}: PropsType) {
+    useEffect(()=>{
+        dispatch(initializeAppTC())
+    },[])
 
+    const isInitialized = useSelector<AppRootStateType,boolean>(state => state.app.isInitialized)
+    const status = useSelector<AppRootStateType, RequestStatusType>((state) => state.app.status)
+    const setIsLoggedIn = useSelector<AppRootStateType, boolean>((state) => state.auth.isLoggedIn)
+    const dispatch = useDispatch()
 
-function App() {
-    
-    const status = useSelector<AppRootStateType, RequestStatusType>(state=>state.app.status)
+    const logoutHandler = () => {
+        dispatch(logoutTC())
+    }
+
+    if (!isInitialized) {
+        return <LinearProgress/>
+    }
 
     return (
         <div className="App">
+            <ErrorSnackbar/>
             <AppBar position="static">
                 <Toolbar>
                     <IconButton edge="start" color="inherit" aria-label="menu">
@@ -34,18 +44,18 @@ function App() {
                     <Typography variant="h6">
                         News
                     </Typography>
-                    <Button color="inherit">Login</Button>
+                    {setIsLoggedIn && <Button color="inherit" onClick={logoutHandler}>Log out</Button>}
                 </Toolbar>
+                {status === 'loading' && <LinearProgress/>}
             </AppBar>
-
-            {status === 'loading' &&   <LinearProgress color="secondary" />}
-
             <Container fixed>
-                <TodolistsList/>
+                <Switch>
+                    <Route exact path={'/'} render={() => <TodolistsList demo={demo}/>}/>
+                    <Route path={'/login'} render={() => <Login/>}/>
+                    <Route path={'/404'} render={() => <h1>404: PAGE NOT FOUND</h1>}/>
+                    <Redirect from={'*'} to={'/404'}/>
+                </Switch>
             </Container>
-
-            <ErrorSnackbar/>
-
         </div>
     )
 }
