@@ -1,7 +1,8 @@
-import { Dispatch } from 'redux'
-import { SetAppErrorActionType, setAppStatusAC, SetAppStatusActionType } from '../../app/app-reducer'
+import {Dispatch} from 'redux'
+import {SetAppErrorActionType, setAppStatusAC, SetAppStatusActionType} from '../../app/app-reducer'
 import {authAPI, LoginParamsType, todolistsAPI} from '../../api/todolists-api';
 import {handleServerAppError, handleServerNetworkError} from '../../utils/error-utils';
+import {deleteAllLocalDataAC, DeleteAllLocalDataActionType} from '../TodolistsList/tasks-reducer';
 
 
 const initialState = {
@@ -44,6 +45,7 @@ export const logoutTC = () => (dispatch: Dispatch<ActionsType>) => {
         .then(res => {
             if (res.data.resultCode === 0) {
                 dispatch(setIsLoggedInAC(false))
+                dispatch(deleteAllLocalDataAC())
                 dispatch(setAppStatusAC('succeeded'))
             } else {
                 handleServerAppError(res.data, dispatch)
@@ -57,3 +59,4 @@ export const logoutTC = () => (dispatch: Dispatch<ActionsType>) => {
 
 // types
 type ActionsType = ReturnType<typeof setIsLoggedInAC> | SetAppStatusActionType | SetAppErrorActionType
+    | DeleteAllLocalDataActionType
